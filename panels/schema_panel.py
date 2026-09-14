@@ -109,3 +109,11 @@ class SchemaPanel(QGroupBox):
 
     def _on_fetch_error(self, msg: str):
         self.schema_view.append_line(f"error: {msg}", "error")
+
+    # Fix issue #1 - Refresh schema panel after theme change
+    def rerender(self):
+            self.schema_view.clear()
+            for line in json.dumps(self._last_schema,indent=2).splitlines():
+                self.schema_view.append_line(line, "data")
+
+                       

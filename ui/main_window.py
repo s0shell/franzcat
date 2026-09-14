@@ -102,6 +102,8 @@ class MainWindow(QMainWindow):
         self._dark_mode = not self._dark_mode
         QApplication.instance().setStyleSheet(load_stylesheet(self._dark_mode))
         LogPane.set_dark_mode(self._dark_mode)
+        # Fix Issue #1
+        SchemaPanel.rerender(self.schema_panel)
 
         if self._dark_mode:
             self.btn_theme.setText("☀  LIGHT")
