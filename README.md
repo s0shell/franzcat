@@ -10,6 +10,51 @@ FranzCat provides a desktop interface for interacting with Kafka brokers and Con
 
 ---
 
+# Installation
+
+## Requirements
+ - Python 3.10 or newer
+ - Network access to a Kafka broker (and optionally a Confluent Schema Registry)
+
+## Setup
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/s0shell/franzcat.git
+   cd franzcat
+   ```
+
+2. Create and activate a virtual environment (recommended):
+
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate        # Windows: .venv\Scripts\activate
+   ```
+
+3. Install the dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. Run the application:
+
+   ```bash
+   python main.py
+   ```
+
+## Dependencies
+
+| Package | Purpose |
+|---|---|
+| PyQt6 | Desktop UI |
+| confluent-kafka | Kafka producer/consumer |
+| fastavro | Avro schema parsing and payload encoding |
+| requests, urllib3 | Schema Registry (HTTP/mTLS) communication |
+
+---
+
 # Features
 
 ## Schema Registry
