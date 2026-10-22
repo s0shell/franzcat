@@ -28,6 +28,18 @@ class WriterPanel(QGroupBox):
     def set_schema_panel(self, p): self._schema_panel = p
     def set_rand_panel(self, p):   self._rand_panel   = p
 
+    def settings_widgets(self) -> dict:
+        """Widgets to persist. Payload text is session state and not saved."""
+        return {
+            **{f"bar_{k}": w for k, w in self.broker_bar.settings_widgets().items()},
+            "msg_key":    self.inp_msg_key,
+            "source":     self.cmb_src,
+            "raw":        self.chk_raw,
+            "raw_enc":    self.cmb_raw_enc,
+            "repeat":     self.chk_repeat,
+            "repeat_n":   self.inp_repeat_n,
+        }
+
     # ── UI ───────────────────────────────────────────────────
 
     def _build(self):

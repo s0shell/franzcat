@@ -8,6 +8,8 @@ Kafka testing tool for developers, QA engineers, SREs, platform engineers, and s
 
 FranzCat provides a desktop interface for interacting with Kafka brokers and Confluent Schema Registry. It supports Avro schemas, payload generation, Kafka topics read and write operations, and mTLS connectivity.
 
+See the [Changelog](CHANGELOG.md) for recent changes.
+
 ---
 
 # Installation
@@ -52,6 +54,14 @@ FranzCat provides a desktop interface for interacting with Kafka brokers and Con
 | confluent-kafka | Kafka producer/consumer |
 | fastavro | Avro schema parsing and payload encoding |
 | requests, urllib3 | Schema Registry (HTTP/mTLS) communication |
+
+## Settings
+
+Form values (URLs, brokers, topics, certificate paths, checkboxes, theme, window size) are saved automatically to `settings.json` in the per-user config directory and restored on the next start:
+
+The location is the OS-standard application config directory (Qt `AppConfigLocation`), for example `~/Library/Preferences/FranzCat/FranzCat/settings.json` on macOS. Linux and Windows use their respective standard config directories (typically under `~/.config` and `%LOCALAPPDATA%`).
+
+Set the `FRANZCAT_CONFIG` environment variable to use a different file. The key passphrase and message payloads are intentionally **not** stored.
 
 ---
 

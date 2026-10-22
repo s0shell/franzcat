@@ -26,6 +26,7 @@ class KafkaBrokerBar(QWidget):
         row.addWidget(lbl_t)
         row.addWidget(self.inp_topic, 2)
 
+        self.inp_group = None
         if show_group:
             lbl_g = QLabel("Consumer Group")
             lbl_g.setObjectName("lbl_key")
@@ -33,3 +34,9 @@ class KafkaBrokerBar(QWidget):
             self.inp_group.setPlaceholderText("kafkapt-consumer")
             row.addWidget(lbl_g)
             row.addWidget(self.inp_group, 2)
+
+    def settings_widgets(self) -> dict:
+        widgets = {"broker": self.inp_broker, "topic": self.inp_topic}
+        if self.inp_group is not None:
+            widgets["group"] = self.inp_group
+        return widgets
