@@ -17,6 +17,9 @@ class SchemaPanel(QGroupBox):
         """Called by MainWindow so SchemaPanel can read TLS config on demand."""
         self._cert_panel = cert_panel
 
+    def settings_widgets(self) -> dict:
+        return {"url": self.inp_url, "schema_id": self.inp_schema_id}
+
     def get_loaded_schema(self) -> dict | None:
         """Returns the last successfully fetched Avro schema dict, or None."""
         return self._last_schema

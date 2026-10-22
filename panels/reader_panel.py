@@ -27,6 +27,16 @@ class ReaderPanel(QGroupBox):
     def set_cert_panel(self, p):   self._cert_panel   = p
     def set_schema_panel(self, p): self._schema_panel = p
 
+    def settings_widgets(self) -> dict:
+        return {
+            **{f"bar_{k}": w for k, w in self.broker_bar.settings_widgets().items()},
+            "offset_mode":   self.cmb_offset,
+            "offset_value":  self.inp_offset_val,
+            "max_messages":  self.inp_count,
+            "ignore_schema": self.chk_ignore_schema,
+            "display_fmt":   self.cmb_display_fmt,
+        }
+
     # ── UI build ─────────────────────────────────────────────
 
     def _build(self):

@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
     QTabWidget, QStatusBar
 )
 
+from PyQt6.QtCore import QByteArray
 from PyQt6.QtGui import QFont
 
 from panels.cert_panel import CertPanel
@@ -12,21 +13,50 @@ from panels.reader_panel import ReaderPanel
 from panels.schema_panel import SchemaPanel
 from panels.writer_panel import WriterPanel
 from styles.theme_manager import load_stylesheet
+from services.settings_store import SettingsStore
 from widgets.log_pane import LogPane
 
 
+APP_VERSION = "1.01"
+
+
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, store: SettingsStore, dark_mode: bool = True):
         super().__init__()
-        self._dark_mode = True
+        self._store = store
+        self._dark_mode = dark_mode
         self.setWindowTitle("FranzCat  //  Kafka Testing Tool")
         self.resize(1100, 700)
         self._build()
         self.status_bar = QStatusBar()
         self.setStatusBar(self.status_bar)
         self.status_bar.showMessage(
-            "FranzCat v1.0 | MIT License | Developed by Karol Wuwer with AI assistance"
+            f"FranzCat v{APP_VERSION} | MIT License | Developed by Karol Wuwer with AI assistance"
         )
+        self._apply_theme_labels()
+        self._init_settings()
+
+    def _init_settings(self):
+        """Register persisted widgets, restore them, and restore window geometry."""
+        store = self._store
+        store.register("schema", self.schema_panel.settings_widgets())
+        store.register("certs", self.cert_panel.settings_widgets())
+        store.register("reader", self.reader_panel.settings_widgets())
+        store.register("writer", self.writer_panel.settings_widgets())
+        store.restore()
+
+        geometry = store.get("window.geometry")
+        if isinstance(geometry, str):
+            try:
+                self.restoreGeometry(QByteArray.fromBase64(geometry.encode("ascii")))
+            except UnicodeEncodeError:
+                pass
+
+    def closeEvent(self, event):
+        geometry = bytes(self.saveGeometry().toBase64()).decode("ascii")
+        self._store.set("window.geometry", geometry)
+        self._store.save()
+        super().closeEvent(event)
 
     def _build(self):
         central = QWidget()
@@ -52,7 +82,7 @@ class MainWindow(QMainWindow):
         header_row.addWidget(self.btn_theme)
         root.addLayout(header_row)
 
-        self.lbl_sub = QLabel("FranzCat  / v1.0")
+        self.lbl_sub = QLabel(f"FranzCat  / v{APP_VERSION}")
         self.lbl_sub.setStyleSheet("color: #2e5a2e; letter-spacing: 3px; font-size: 11px;")
         root.addWidget(self.lbl_sub)
 
@@ -105,6 +135,10 @@ class MainWindow(QMainWindow):
         # Fix Issue #1
         SchemaPanel.rerender(self.schema_panel)
 
+        self._apply_theme_labels()
+        self._store.set("window.dark_mode", self._dark_mode)
+
+    def _apply_theme_labels(self):
         if self._dark_mode:
             self.btn_theme.setText("☀  LIGHT")
             self.lbl_header.setStyleSheet(

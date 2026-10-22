@@ -98,6 +98,17 @@ class CertPanel(QGroupBox):
 
     # ── Helpers ──────────────────────────────────────────────
 
+    def settings_widgets(self) -> dict:
+        """Widgets to persist. The key passphrase is deliberately excluded."""
+        return {
+            "mtls_sr":     self.chk_mtls_sr,
+            "mtls_broker": self.chk_mtls_broker,
+            "ca_cert":     self._paths["ca_cert"],
+            "client_cert": self._paths["client_cert"],
+            "client_key":  self._paths["client_key"],
+            "verify":      self.chk_verify,
+        }
+
     def _any_mtls_active(self) -> bool:
         return self.chk_mtls_sr.isChecked() or self.chk_mtls_broker.isChecked()
 
