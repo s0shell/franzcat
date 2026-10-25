@@ -108,6 +108,26 @@ class SettingsStore:
         for w in self._widgets.values():
             change_signal(w).connect(self.schedule_save)
 
+    # ── bulk apply / compare (used by environments) ──────────
+
+    def apply_values(self, values: dict) -> None:
+        for name, value in values.items():
+            if name in self._widgets:
+                write_widget(self._widgets[name], value)
+
+    def differs(self, values: dict) -> bool:
+        """True if any registered widget no longer holds the given value."""
+        return any(
+            name in self._widgets and read_widget(self._widgets[name]) != value
+            for name, value in values.items()
+        )
+
+    def watch(self, names, callback) -> None:
+        """Call callback whenever one of the named widgets changes."""
+        for name in names:
+            if name in self._widgets:
+                change_signal(self._widgets[name]).connect(callback)
+
     # ── plain (non-widget) values ────────────────────────────
 
     def get(self, name: str, default=None):

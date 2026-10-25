@@ -13,11 +13,13 @@ from panels.reader_panel import ReaderPanel
 from panels.schema_panel import SchemaPanel
 from panels.writer_panel import WriterPanel
 from styles.theme_manager import load_stylesheet
+from services.environment_store import ENV_KEYS, load_environments
 from services.settings_store import SettingsStore
+from widgets.environment_bar import EnvironmentBar
 from widgets.log_pane import LogPane
 
 
-APP_VERSION = "1.01"
+APP_VERSION = "1.02"
 
 
 class MainWindow(QMainWindow):
@@ -25,6 +27,8 @@ class MainWindow(QMainWindow):
         super().__init__()
         self._store = store
         self._dark_mode = dark_mode
+        self._environments = {}      # name -> Environment
+        self._applying_env = False   # suppress 'modified' tracking while applying
         self.setWindowTitle("FranzCat  //  Kafka Testing Tool")
         self.resize(1100, 700)
         self._build()
@@ -44,6 +48,7 @@ class MainWindow(QMainWindow):
         store.register("reader", self.reader_panel.settings_widgets())
         store.register("writer", self.writer_panel.settings_widgets())
         store.restore()
+        self._init_environments()
 
         geometry = store.get("window.geometry")
         if isinstance(geometry, str):
@@ -51,6 +56,64 @@ class MainWindow(QMainWindow):
                 self.restoreGeometry(QByteArray.fromBase64(geometry.encode("ascii")))
             except UnicodeEncodeError:
                 pass
+
+    # ── Environments ─────────────────────────────────────────
+
+    def _init_environments(self):
+        """Load environment files; re-apply the one selected last time (unless custom)."""
+        self.env_bar.selected.connect(self._on_env_selected)
+        self.env_bar.reload_requested.connect(self._on_env_reload)
+        self._store.watch(ENV_KEYS, self._update_env_state)
+
+        selected = self._store.get("environment", "")
+        self._load_environments(selected if isinstance(selected, str) else "")
+        if self.env_bar.current_name():
+            self._apply_environment(self.env_bar.current_name())
+
+    def _load_environments(self, keep: str):
+        envs, warnings = load_environments()
+        self._environments = {e.name: e for e in envs}
+        self.env_bar.set_names(list(self._environments), keep)
+        if warnings:
+            self.status_bar.showMessage("environments: " + "; ".join(warnings), 10000)
+
+    def _on_env_selected(self, name: str):
+        self._store.set("environment", name)
+        if name:
+            self._apply_environment(name)
+        else:
+            self.env_bar.set_state("")
+
+    def _on_env_reload(self):
+        name = self.env_bar.current_name()
+        self._load_environments(name)
+        if self.env_bar.current_name():
+            self._apply_environment(self.env_bar.current_name())
+        else:
+            self._store.set("environment", "")
+            self.env_bar.set_state("")
+
+    def _apply_environment(self, name: str):
+        env = self._environments.get(name)
+        if env is None:
+            return
+        self._applying_env = True
+        try:
+            self._store.apply_values(env.values)
+        finally:
+            self._applying_env = False
+        self._update_env_state()
+
+    def _update_env_state(self, *_):
+        if self._applying_env:
+            return
+        env = self._environments.get(self.env_bar.current_name())
+        if env is None:
+            self.env_bar.set_state("")
+        elif self._store.differs(env.values):
+            self.env_bar.set_state("modified")
+        else:
+            self.env_bar.set_state(env.description)
 
     def closeEvent(self, event):
         geometry = bytes(self.saveGeometry().toBase64()).decode("ascii")
@@ -89,6 +152,10 @@ class MainWindow(QMainWindow):
         sep = QFrame()
         sep.setFrameShape(QFrame.Shape.HLine)
         root.addWidget(sep)
+
+        # ── Environment selector ────────────────────────
+        self.env_bar = EnvironmentBar()
+        root.addWidget(self.env_bar)
 
         # ── Config tabs (schema / certs ) ──
         cfg_tabs = QTabWidget()

@@ -218,3 +218,5 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+# Local environment definitions (company-specific); only the sample is tracked
+profiles/*.json
