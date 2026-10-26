@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "name": "Example staging",
+  "description": "Rename to example.json to make this appear in the Environment list",
+  "schema_registry": { "url": "https://schema-registry.example.com:8081", "mtls": true },
+  "broker": { "bootstrap": "kafka1.example.com:9093,kafka2.example.com:9093", "mtls": true },
+  "certs": {
+    "ca_cert": "~/certs/ca-cert.pem",
+    "client_cert": "~/certs/client-cert.pem",
+    "client_key": "~/certs/client-key.pem",
+    "verify": true
+  },
+  "defaults": { "topic": "my-topic", "consumer_group": "franzcat-consumer" }
+}

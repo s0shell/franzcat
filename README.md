@@ -63,6 +63,14 @@ The location is the OS-standard application config directory (Qt `AppConfigLocat
 
 Set the `FRANZCAT_CONFIG` environment variable to use a different file. The key passphrase and message payloads are intentionally **not** stored.
 
+## Environments
+
+An environment is a predefined connection (Schema Registry URL, broker address, mTLS options, certificate paths, default topic and consumer group). Pick one from the **Environment** selector at the top of the window, or leave it on `(custom)` and type values yourself. Fields stay editable after an environment is applied; a `modified` marker shows when they differ from the file.
+
+Environments are JSON files in the `profiles/` folder next to the application (use **OPEN FOLDER** in the app), one file per environment. See [`profiles/example.json.sample`](profiles/example.json.sample); copy it to `profiles/<name>.json` and edit. Every section is optional, `~` and `$ENV_VARS` in certificate paths are expanded, and secrets such as the key passphrase are not supported. Click **RELOAD** after editing a file. Your own `profiles/*.json` files are git-ignored, so company-specific data stays out of the repository.
+
+On start the last selected environment is applied again; if `(custom)` was selected, the values from your last session are restored instead.
+
 ---
 
 # Features

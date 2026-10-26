@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [1.02] - 2026-10-22
+
+### Added
+- Environments: pick a predefined connection (Schema Registry URL, broker, mTLS, certificate paths, default topic/group) from the new Environment selector, or keep typing values yourself with `(custom)`. Definitions are JSON files in `./profiles`.
+- The selected environment is re-applied on start; with `(custom)` the last entered values are restored.
+
 ## [1.01] - 2026-10-22
 
 ### Added
